@@ -304,23 +304,23 @@ new function() {
             attrs.id = item._name;
 
         Base.each(SvgStyles, function(entry) {
-            // Get a given style only if it differs from the value on the parent
-            // (A layer or group which can have style values in SVG).
             var get = entry.get,
                 type = entry.type,
                 value = item[get]();
 
-            // In some cases, the style's value is undefined. Trying to save it
-            // will result in erroneous behavior; for instance, properties like
-            // "fill-rule" will have the invalid value of "none" if undefined.
-            if (value === undefined) return;
+            var shouldApplyStyle = entry.exportFilter
+                ? entry.exportFilter(item, value)
+                // Get a given style only if it differs from the value on the parent
+                // (A layer or group which can have style values in SVG).
+                : !parent || !Base.equals(parent[get](), value) ||
+                // Scratch-specific: always apply styles to text elements to
+                // because gradients must be specified to avoid transform problems.
+                item instanceof paper.PointText;
 
-            if (entry.exportFilter
-                    ? entry.exportFilter(item, value)
-                    : !parent || !Base.equals(parent[get](), value) ||
-                    // Scratch-specific: always apply styles to text elements to
-                    // because gradients must be specified to avoid transform problems.
-                      item instanceof paper.PointText) {
+            // undefined means e.g. this is a group and its children have differing values for this style attribute
+            shouldApplyStyle = shouldApplyStyle && value !== undefined;
+
+            if (shouldApplyStyle) {
                 if (type === 'color' && value != null) {
                     // Support for css-style rgba() values is not in SVG 1.1, so
                     // separate the alpha value of colors with alpha into the

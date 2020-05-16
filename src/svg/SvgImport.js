@@ -590,9 +590,11 @@ new function() {
             };
         Base.each(attributes, function(apply, name) {
             var value = getAttribute(node, name, styles);
-            // 'clip-path' attribute returns a new item, support it here:
-            item = value !== undefined
-                    && apply(item, value, name, node, styles) || item;
+            if (value !== undefined) {
+                // The 'clip-path' attribute returns a new item, but others do not.
+                // If applying the attribute returns an item, set the item to that. If not, keep the current item.
+                item = apply(item, value, name, node, styles) || item;
+            }
         });
         return item;
     }

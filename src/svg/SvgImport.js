@@ -424,20 +424,21 @@ new function() {
     // 'stroke-opacity'). See issue #694.
     var attributes = Base.set(Base.each(SvgStyles, function(entry) {
         this[entry.attribute] = function(item, value) {
+            // If item[entry.set] exists, it means the item has a property (and hence setter) that corresponds to the
+            // SVG style.
             if (item[entry.set]) {
+                // Set the item's corresponding property to the converted SVG value.
                 item[entry.set](convertValue(value, entry.type, entry.fromSVG));
                 if (entry.type === 'color') {
                     // Do not use result of convertValue() above, since calling
                     // the setter will convert a color and clone it if necessary
                     var color = item[entry.get]();
-                    if (color) {
+                    if (color && color._scaleToBounds) {
                         // Emulate SVG's gradientUnits="objectBoundingBox"
-                        if (color._scaleToBounds) {
-                            var bounds = item.getBounds();
-                            color.transform(new Matrix()
-                                .translate(bounds.getPoint())
-                                .scale(bounds.getSize()));
-                        }
+                        var bounds = item.getBounds();
+                        color.transform(new Matrix()
+                            .translate(bounds.getPoint())
+                            .scale(bounds.getSize()));
                     }
                 }
             }
@@ -549,15 +550,15 @@ new function() {
 		}
     });
 
-    function getAttribute(node, name, styles) {
+    function getAttribute(node, attributeName, styles) {
         // First see if the given attribute is defined.
-        var attr = node.attributes[name],
+        var attr = node.attributes[attributeName],
             value = attr && attr.value;
         if (!value && node.style) {
             // Fallback to using styles. See if there is a style, either set
             // directly on the object or applied to it through CSS rules.
             // We also need to filter out inheritance from their parents.
-            var style = Base.camelize(name);
+            var style = Base.camelize(attributeName);
             value = node.style[style];
             if (!value && styles.node[style] !== styles.parent[style])
                 value = styles.node[style];

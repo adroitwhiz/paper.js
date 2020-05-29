@@ -13,12 +13,12 @@
 var SvgStyles = Base.each({
     // Fill
     fillColor: ['fill', 'color'],
-    fillRule: ['fill-rule', 'string'],
+    fillRule: ['fill-rule', 'enum', ['nonzero', 'evenodd']],
     // Stroke
     strokeColor: ['stroke', 'color'],
     strokeWidth: ['stroke-width', 'number'],
-    strokeCap: ['stroke-linecap', 'string'],
-    strokeJoin: ['stroke-linejoin', 'string'],
+    strokeCap: ['stroke-linecap', 'enum', ['butt', 'round', 'square']],
+    strokeJoin: ['stroke-linejoin', 'enum', ['miter', 'round', 'bevel']],
     strokeScaling: ['vector-effect', 'lookup', {
         true: 'none',
         false: 'non-scaling-stroke'
@@ -46,15 +46,17 @@ var SvgStyles = Base.each({
     blendMode: ['mix-blend-mode', 'style']
 }, function(entry, key) {
     var part = Base.capitalize(key),
+        type = entry[1],
         lookup = entry[2];
     this[key] = {
         type: entry[1],
         property: key,
         attribute: entry[0],
-        toSVG: lookup,
-        fromSVG: lookup && Base.each(lookup, function(value, name) {
+        toSVG: type === 'lookup' && lookup,
+        fromSVG: type === 'lookup' && Base.each(lookup, function(value, name) {
             this[value] = name;
         }, {}),
+        validValues: type === 'enum' && lookup,
         exportFilter: entry[3],
         get: 'get' + part,
         set: 'set' + part

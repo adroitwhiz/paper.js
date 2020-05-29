@@ -156,6 +156,19 @@ test('Import SVG - default attributes not applied when parent style exists', fun
     equals(circle.strokeWidth, 5);
 });
 
+test('Import SVG - incorrect attribute values not applied', function(assert) {
+    var svg = `<?xml version="1.0" encoding="utf-8"?>
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <g stroke-linecap="round">
+            <circle cx="5" cy="5" r="5" color="red" stroke-linecap="WRONG" />
+        </g>
+    </svg>`;
+
+    var imported = paper.project.importSVG(svg);
+    var circle = imported.children[0].children[0];
+    equals(circle.strokeCap, 'round');
+});
+
 test('Import complex CompoundPath and clone', function() {
     var svg = '<svg xmlns="http://www.w3.org/2000/svg"><path fill="red" d="M4,14h20v-2H4V14z M15,26h7v-2h-7V26z M15,22h9v-2h-9V22z M15,18h9v-2h-9V18z M4,26h9V16H4V26z M28,10V6H0v22c0,0,0,4,4,4 h25c0,0,3-0.062,3-4V10H28z M4,30c-2,0-2-2-2-2V8h24v20c0,0.921,0.284,1.558,0.676,2H4z"/></svg>';
     var item = paper.project.importSVG(svg);

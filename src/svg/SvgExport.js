@@ -320,6 +320,10 @@ new function() {
             // undefined means e.g. this is a group and its children have differing values for this style attribute
             shouldApplyStyle = shouldApplyStyle && value !== undefined;
 
+            // If this attribute is an enum (e.g. 'stroke-linejoin') and as such only accepts certain values,
+            // and our style value isn't one of them, then don't apply this style attribute
+            if (type === 'enum') shouldApplyStyle = shouldApplyStyle && entry.validValues.indexOf(value) !== -1;
+
             if (shouldApplyStyle) {
                 if (type === 'color' && value != null) {
                     // Support for css-style rgba() values is not in SVG 1.1, so

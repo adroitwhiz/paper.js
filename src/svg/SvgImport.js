@@ -641,9 +641,8 @@ new function() {
             container = SvgElement.create('svg', {
                 // If no stroke-width is set, IE/Edge appears to have a
                 // default of 0.01px. We can set a default style on the
-                // parent container as a more sensible fall-back. Also, browsers
-                // have a default miter-limit of 4, while Paper.js has 10
-                style: 'stroke-width: 1px; stroke-miterlimit: 10'
+                // parent container as a more sensible fall-back.
+                style: 'stroke-width: 1px'
             });
             parent = node.parentNode;
             next = node.nextSibling;
